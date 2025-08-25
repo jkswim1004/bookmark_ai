@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Flask
+instance/
+.webassets-cache
+
+# 업로드된 파일들
+uploads/
+*.csv
+*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 로그 파일
+*.log
+
+# 환경 변수
+.env
+.env.local
+
+# 배포 파일들
+*.zip
+*.exe
+
+# 임시 파일
+*.tmp
+*.temp 

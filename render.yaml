@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: jk-work-app
+    env: python
+    plan: free
+    region: oregon
+    runtime: python3.11
+    buildCommand: |
+      pip install --upgrade pip setuptools wheel
+      pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT application:application
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.11.9 
