@@ -2488,131 +2488,184 @@ def analyze():
                 
                 let html = '';
                 
+                // 불완전한 분석 결과 감지
+                function isIncompleteAnalysis(data) {
+                    const checkTexts = ['분석 중...', 'AI 분석 중...', '파싱하는 중...', '생성하는 중...'];
+                    const dataStr = JSON.stringify(data);
+                    return checkTexts.some(text => dataStr.includes(text));
+                }
+                
                 // AI 인사이트 표시
                 if (analysisResult.ai_insights) {
                     const insights = analysisResult.ai_insights;
                     
-                    html += `
-                        <div class="insight-card">
-                            <div class="insight-title">🤖 AI 종합 분석</div>
-                            <p><strong>전반적 성향:</strong> ${insights.overview || '분석 중...'}</p>
-                            <p><strong>주요 강점:</strong> ${insights.strengths || '분석 중...'}</p>
-                            <p><strong>업무 스타일:</strong> ${insights.work_style || '분석 중...'}</p>
-                            <p><strong>관심 분야:</strong> ${insights.interests || '분석 중...'}</p>
-                        </div>
-                    `;
+                    // 불완전한 분석 결과인지 확인
+                    if (isIncompleteAnalysis(insights)) {
+                        html += `
+                            <div class="insight-card" style="border-left: 4px solid #ff6b6b;">
+                                <div class="insight-title">⚠️ 분석 결과 불완전</div>
+                                <p style="color: #e74c3c; margin-bottom: 15px;">
+                                    <strong>이전 AI 분석이 완전히 완료되지 않았습니다.</strong><br>
+                                    정확한 분석 결과를 위해 AI 분석을 다시 실행해주세요.
+                                </p>
+                                <button onclick="location.reload()" style="background: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                                    🔄 페이지 새로고침 후 AI 분석 재실행
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="insight-card">
+                                <div class="insight-title">🤖 AI 종합 분석</div>
+                                <p><strong>전반적 성향:</strong> ${insights.overview || '분석 중...'}</p>
+                                <p><strong>주요 강점:</strong> ${insights.strengths || '분석 중...'}</p>
+                                <p><strong>업무 스타일:</strong> ${insights.work_style || '분석 중...'}</p>
+                                <p><strong>관심 분야:</strong> ${insights.interests || '분석 중...'}</p>
+                            </div>
+                        `;
+                    }
                 }
                 
                 // MBTI 분석 표시
                 if (analysisResult.mbti_analysis) {
                     const mbti = analysisResult.mbti_analysis;
                     
-                    html += `
-                        <div class="insight-card">
-                            <div class="insight-title">🧠 MBTI 성향 분석</div>
-                            <p><strong>예상 유형:</strong> ${mbti.predicted_type || 'ESTJ'} (신뢰도: ${mbti.confidence || 60}%)</p>
-                            <div style="margin-top: 15px;">
-                                <div style="margin: 10px 0;">
-                                    <strong>외향성(E) vs 내향성(I):</strong> ${mbti.E_I?.score || 60}% → ${mbti.E_I?.tendency || 'E'}
-                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; margin-top: 5px;">
-                                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; width: ${mbti.E_I?.score || 60}%; border-radius: 4px;"></div>
+                    // MBTI 분석이 불완전한지 확인
+                    if (isIncompleteAnalysis(mbti)) {
+                        html += `
+                            <div class="insight-card" style="border-left: 4px solid #ff6b6b;">
+                                <div class="insight-title">⚠️ MBTI 분석 불완전</div>
+                                <p style="color: #e74c3c;">MBTI 분석이 완전히 완료되지 않았습니다. AI 분석을 다시 실행해주세요.</p>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="insight-card">
+                                <div class="insight-title">🧠 MBTI 성향 분석</div>
+                                <p><strong>예상 유형:</strong> ${mbti.predicted_type || 'ESTJ'} (신뢰도: ${mbti.confidence || 60}%)</p>
+                                <div style="margin-top: 15px;">
+                                    <div style="margin: 10px 0;">
+                                        <strong>외향성(E) vs 내향성(I):</strong> ${mbti.E_I?.score || 60}% → ${mbti.E_I?.tendency || 'E'}
+                                        <div style="background: #e9ecef; height: 8px; border-radius: 4px; margin-top: 5px;">
+                                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; width: ${mbti.E_I?.score || 60}%; border-radius: 4px;"></div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div style="margin: 10px 0;">
-                                    <strong>감각(S) vs 직관(N):</strong> ${mbti.S_N?.score || 45}% → ${mbti.S_N?.tendency || 'S'}
-                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; margin-top: 5px;">
-                                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; width: ${mbti.S_N?.score || 45}%; border-radius: 4px;"></div>
+                                    <div style="margin: 10px 0;">
+                                        <strong>감각(S) vs 직관(N):</strong> ${mbti.S_N?.score || 45}% → ${mbti.S_N?.tendency || 'S'}
+                                        <div style="background: #e9ecef; height: 8px; border-radius: 4px; margin-top: 5px;">
+                                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; width: ${mbti.S_N?.score || 45}%; border-radius: 4px;"></div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div style="margin: 10px 0;">
-                                    <strong>사고(T) vs 감정(F):</strong> ${mbti.T_F?.score || 65}% → ${mbti.T_F?.tendency || 'T'}
-                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; margin-top: 5px;">
-                                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; width: ${mbti.T_F?.score || 65}%; border-radius: 4px;"></div>
+                                    <div style="margin: 10px 0;">
+                                        <strong>사고(T) vs 감정(F):</strong> ${mbti.T_F?.score || 65}% → ${mbti.T_F?.tendency || 'T'}
+                                        <div style="background: #e9ecef; height: 8px; border-radius: 4px; margin-top: 5px;">
+                                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; width: ${mbti.T_F?.score || 65}%; border-radius: 4px;"></div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div style="margin: 10px 0;">
-                                    <strong>판단(J) vs 인식(P):</strong> ${mbti.J_P?.score || 55}% → ${mbti.J_P?.tendency || 'J'}
-                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; margin-top: 5px;">
-                                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; width: ${mbti.J_P?.score || 55}%; border-radius: 4px;"></div>
+                                    <div style="margin: 10px 0;">
+                                        <strong>판단(J) vs 인식(P):</strong> ${mbti.J_P?.score || 55}% → ${mbti.J_P?.tendency || 'J'}
+                                        <div style="background: #e9ecef; height: 8px; border-radius: 4px; margin-top: 5px;">
+                                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; width: ${mbti.J_P?.score || 55}%; border-radius: 4px;"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    }
                 }
                 
                 // 성격 특성 표시
                 if (analysisResult.personality_traits) {
                     const traits = analysisResult.personality_traits;
                     
-                    html += `
-                        <div class="insight-card">
-                            <div class="insight-title">🎯 성격 특성 분석</div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
-                                <div>
-                                    <strong>개방성:</strong> ${traits.openness?.score || 70}%<br>
-                                    <small>${traits.openness?.description || '새로운 경험에 대한 개방성'}</small>
-                                </div>
-                                <div>
-                                    <strong>성실성:</strong> ${traits.conscientiousness?.score || 65}%<br>
-                                    <small>${traits.conscientiousness?.description || '조직적이고 계획적인 성향'}</small>
-                                </div>
-                                <div>
-                                    <strong>외향성:</strong> ${traits.extraversion?.score || 60}%<br>
-                                    <small>${traits.extraversion?.description || '사교적이고 활동적인 성향'}</small>
-                                </div>
-                                <div>
-                                    <strong>친화성:</strong> ${traits.agreeableness?.score || 70}%<br>
-                                    <small>${traits.agreeableness?.description || '협력적이고 신뢰하는 성향'}</small>
-                                </div>
-                                <div>
-                                    <strong>창의성:</strong> ${traits.creativity?.score || 75}%<br>
-                                    <small>${traits.creativity?.description || '창의적 사고와 혁신성'}</small>
-                                </div>
-                                <div>
-                                    <strong>기술 친화도:</strong> ${traits.tech_savviness?.score || 80}%<br>
-                                    <small>${traits.tech_savviness?.description || '기술 수용과 활용 능력'}</small>
+                    // 성격 특성 분석이 불완전한지 확인
+                    if (isIncompleteAnalysis(traits)) {
+                        html += `
+                            <div class="insight-card" style="border-left: 4px solid #ff6b6b;">
+                                <div class="insight-title">⚠️ 성격 특성 분석 불완전</div>
+                                <p style="color: #e74c3c;">성격 특성 분석이 완전히 완료되지 않았습니다. AI 분석을 다시 실행해주세요.</p>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="insight-card">
+                                <div class="insight-title">🎯 성격 특성 분석</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                                    <div>
+                                        <strong>개방성:</strong> ${traits.openness?.score || 70}%<br>
+                                        <small>${traits.openness?.description || '새로운 경험에 대한 개방성'}</small>
+                                    </div>
+                                    <div>
+                                        <strong>성실성:</strong> ${traits.conscientiousness?.score || 65}%<br>
+                                        <small>${traits.conscientiousness?.description || '조직적이고 계획적인 성향'}</small>
+                                    </div>
+                                    <div>
+                                        <strong>외향성:</strong> ${traits.extraversion?.score || 60}%<br>
+                                        <small>${traits.extraversion?.description || '사교적이고 활동적인 성향'}</small>
+                                    </div>
+                                    <div>
+                                        <strong>친화성:</strong> ${traits.agreeableness?.score || 70}%<br>
+                                        <small>${traits.agreeableness?.description || '협력적이고 신뢰하는 성향'}</small>
+                                    </div>
+                                    <div>
+                                        <strong>창의성:</strong> ${traits.creativity?.score || 75}%<br>
+                                        <small>${traits.creativity?.description || '창의적 사고와 혁신성'}</small>
+                                    </div>
+                                    <div>
+                                        <strong>기술 친화도:</strong> ${traits.tech_savviness?.score || 80}%<br>
+                                        <small>${traits.tech_savviness?.description || '기술 수용과 활용 능력'}</small>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    }
                 }
                 
                 // 추천 사항 표시
                 if (analysisResult.recommendations) {
                     const rec = analysisResult.recommendations;
                     
-                    html += `
-                        <div class="insight-card">
-                            <div class="insight-title">💡 개인화된 추천</div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
-                                <div>
-                                    <h4 style="margin: 0 0 10px 0; color: #667eea;">🛠️ 생산성 도구</h4>
-                                    <ul style="margin: 0; padding-left: 20px;">
-                                        ${(rec.productivity_tools || []).map(item => `<li>${item}</li>`).join('')}
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h4 style="margin: 0 0 10px 0; color: #667eea;">📚 학습 리소스</h4>
-                                    <ul style="margin: 0; padding-left: 20px;">
-                                        ${(rec.learning_resources || []).map(item => `<li>${item}</li>`).join('')}
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h4 style="margin: 0 0 10px 0; color: #667eea;">💻 소프트웨어/앱</h4>
-                                    <ul style="margin: 0; padding-left: 20px;">
-                                        ${(rec.software_apps || []).map(item => `<li>${item}</li>`).join('')}
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h4 style="margin: 0 0 10px 0; color: #667eea;">🚀 커리어 발전</h4>
-                                    <ul style="margin: 0; padding-left: 20px;">
-                                        ${(rec.career_development || []).map(item => `<li>${item}</li>`).join('')}
-                                    </ul>
+                    // 추천 사항이 불완전한지 확인
+                    if (isIncompleteAnalysis(rec)) {
+                        html += `
+                            <div class="insight-card" style="border-left: 4px solid #ff6b6b;">
+                                <div class="insight-title">⚠️ 추천 사항 불완전</div>
+                                <p style="color: #e74c3c;">개인화된 추천 사항이 완전히 생성되지 않았습니다. AI 분석을 다시 실행해주세요.</p>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="insight-card">
+                                <div class="insight-title">💡 개인화된 추천</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                                    <div>
+                                        <h4 style="margin: 0 0 10px 0; color: #667eea;">🛠️ 생산성 도구</h4>
+                                        <ul style="margin: 0; padding-left: 20px;">
+                                            ${(rec.productivity_tools || []).map(item => `<li>${item}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 style="margin: 0 0 10px 0; color: #667eea;">📚 학습 리소스</h4>
+                                        <ul style="margin: 0; padding-left: 20px;">
+                                            ${(rec.learning_resources || []).map(item => `<li>${item}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 style="margin: 0 0 10px 0; color: #667eea;">💻 소프트웨어/앱</h4>
+                                        <ul style="margin: 0; padding-left: 20px;">
+                                            ${(rec.software_apps || []).map(item => `<li>${item}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 style="margin: 0 0 10px 0; color: #667eea;">🚀 커리어 발전</h4>
+                                        <ul style="margin: 0; padding-left: 20px;">
+                                            ${(rec.career_development || []).map(item => `<li>${item}</li>`).join('')}
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    }
                 }
                 
                 // AI 분석 여부 표시
